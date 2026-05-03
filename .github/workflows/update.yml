@@ -1,0 +1,72 @@
+name: Auto Update id.json (Important Fields + Keep Only 1 Commit)
+
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'     # ← Har 30 minute mein check karega
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Fetch latest JSON from binge-jiotv
+        run: |
+          mkdir -p data/jtv
+          curl -s https://binge-jiotv.pages.dev/data/id.json -o data/jtv/id.json.new
+
+      - name: Check & Update if important fields changed
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "GitHub Action"
+
+          # Pehli baar file nahi hai to create kar do
+          if [ ! -f data/jtv/id.json ]; then
+            mv data/jtv/id.json.new data/jtv/id.json
+            git add data/jtv/id.json
+            git commit -m "Initial commit: id.json from binge-jiotv"
+            git push
+            echo "✅ First time: File created and pushed"
+            exit 0
+          fi
+
+          # Sirf important fields compare karo
+          jq '{id, name, url, cookie, keyId, key, logo}' data/jtv/id.json > old_important.json
+          jq '{id, name, url, cookie, keyId, key, logo}' data/jtv/id.json.new > new_important.json
+
+          if diff old_important.json new_important.json > /dev/null; then
+            echo "✅ No changes in important fields"
+            rm -f data/jtv/id.json.new *.json
+          else
+            mv data/jtv/id.json.new data/jtv/id.json
+            git add data/jtv/id.json
+            git commit -m "Auto Update: Important fields changed ($(date +%Y-%m-%d\ %H:%M))"
+            echo "✅ Important fields changed → Committed"
+          fi
+
+          rm -f old_important.json new_important.json
+
+      - name: Keep ONLY 1 Commit (Clean History)
+        if: success() && github.event_name == 'schedule'
+        run: |
+          echo "🔄 Rewriting history to keep only the latest commit..."
+
+          git checkout --orphan temp-branch
+          git add -A
+          git commit -m "Latest: id.json from binge-jiotv ($(date +%Y-%m-%d\ %H:%M))"
+
+          git branch -D main
+          git branch -m main
+
+          git push origin main --force
+
+          echo "✅ History cleaned! Only 1 commit remains now."

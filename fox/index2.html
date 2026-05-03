@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TG @AK_LIVE_OFFICE</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #202020;
+      color: white;
+      font-family: 'Inter', Arial, sans-serif;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .video-container {
+      margin-top: 40px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 15px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 50.625vw; /* 16:9 Aspect Ratio */
+      max-height: 500px;
+      border: none;
+      background: #111;
+      border-radius: 10px;
+    }
+
+    .telegram-btn {
+      display: inline-block;
+      margin-top: 20px;
+      background: #0088cc;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .telegram-btn:hover {
+      background: #0077b6;
+      transform: scale(1.05);
+    }
+
+    .info-box {
+      background: #333;
+      color: #ffeb3b;
+      padding: 15px;
+      margin: 20px auto;
+      border-radius: 8px;
+      max-width: 500px;
+      font-size: 15px;
+      line-height: 1.5;
+      border: 1px solid #444;
+    }
+
+    /* --- Share Button Styles --- */
+    .direct-share-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px auto;
+      padding: 0 15px;
+      max-width: 500px;
+    }
+
+    .share-option {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 12px 15px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 14px;
+      transition: background-color 0.2s, transform 0.2s;
+      flex: 1;
+    }
+    .share-option:hover {
+        transform: scale(1.03);
+    }
+
+    .share-option.whatsapp { background-color: #25D366; }
+    .share-option.whatsapp:hover { background-color: #1EBE57; }
+    .share-option.telegram { background-color: #0088cc; }
+    .share-option.telegram:hover { background-color: #0077b6; }
+
+
+    /* --- Popup Styles --- */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none; /* Initially hidden */
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+
+    .popup-content {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      position: relative;
+      width: 90%;
+      max-width: 350px;
+      border: 1px solid #444;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .popup-content .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+      color: #888;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .popup-content .close-btn:hover {
+      color: #fff;
+    }
+
+    .popup-content svg {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 15px;
+    }
+
+    .popup-content h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .popup-content p {
+      margin-bottom: 25px;
+      color: #ccc;
+      font-size: 16px;
+    }
+
+    .popup-join-btn {
+      display: block;
+      width: 100%;
+      background: #0088cc;
+      color: #fff;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .popup-join-btn:hover {
+      background: #0077b6;
+      transform: scale(1.02);
+    }
+
+    .popup-already-joined {
+      display: block;
+      margin-top: 12px;
+      color: #aaa;
+      text-decoration: none;
+      font-size: 14px;
+      opacity: 0.7;
+      cursor: pointer;
+      transition: opacity 0.3s;
+    }
+
+    .popup-already-joined:hover {
+      opacity: 1;
+    }
+
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <h2>FOX</h2>
+
+  <div class="video-container">
+    <iframe id="videoFrame"
+            src="https://tvgotk.wapka.fun/hotstar"
+            sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"
+            frameborder="0"
+            gesture="media"
+            allow="encrypted-media"
+            allowfullscreen="true"
+            scrolling="no"></iframe>
+  </div>
+
+  <a class="telegram-btn" href="https://t.me/AK_LIVE_OFFICE" target="_blank">Join Telegram</a>
+
+
+</body>
+</html>

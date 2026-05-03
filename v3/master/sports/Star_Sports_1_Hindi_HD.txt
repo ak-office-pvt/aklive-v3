@@ -1,0 +1,40 @@
+if(confirm("Join Our Telegram Channel @AK_LIVE_OFFICE")) { window.location.href = "https://telegram.me/AK_LIVE_OFFICE" }
+
+ jwplayer("jwplayerDiv").setup({
+
+    controls: true,
+    displaytitle: true,
+    fullscreen: "true",
+    primary: 'html5',
+    stretching: "exactfit",
+    autostart: false,
+
+  "playlist": [
+      {
+        "sources": [
+          null,
+          {
+
+            "type": "dash",
+            "file": "https://bpprod5catchup.akamaized.net/bpk-tv/irdeto_com_Channel_252/output/manifest.mpd?begin=20240522T000000&end=20250531T160000",
+            "drm": {
+              "clearkey": {
+                "keyId": "69bc7b5441ce54ffac4987ba5d5581cb",
+                "key": "b339f21a424f6c303570c9266faf5a01"
+              }
+            },
+            "label": "0"
+          }
+        ],
+        image: "/images/play-cover.jpg",
+        title: "Star Sports 1 Hindi HD",
+        description: "Join Telegram Channel @AK_LIVE_OFFICE"
+      }
+    ],
+
+    "image": "/images/play-cover.jpg"
+  }).on('ready', function () {
+    // Set poster image for video element to avoid black background for audio-only programs.
+    var video = document.getElementById(this.id).getElementsByTagName('video')[0];
+    if (video) video.setAttribute('poster', this.getConfig().image);
+  }); 

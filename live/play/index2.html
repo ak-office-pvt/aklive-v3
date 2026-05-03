@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <meta name="theme-color" content="#161616">  
+  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.2/controls.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.2/shaka-player.ui.min.js"></script>
+  <script src="/js/click-heart.js"></script>
+  <script disable-devtool-auto='true' src='https://cdn.jsdelivr.net/npm/disable-devtool' clear-log='true'
+    disable-select='true' disable-copy='true' disable-cut='true' disable-paste='true'></script>
+  
+   <title> AK LIVE PLAYER </title>
+  
+  <style>
+    :root { --theme-color: #e50914; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; background:#000; overflow:hidden; font-family: 'Poppins', sans-serif; }
+    .shaka-video-container { position:fixed; inset:0; background:#000; display:flex; align-items:center; justify-content:center; }
+    video { width:100%; height:100%; object-fit:contain; background:#000; outline: none; }
+
+    .wm {
+      position: absolute; z-index: 40; pointer-events: none;
+      background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); padding: 4px 10px; 
+      border-radius: 6px; font-size: 11px; font-weight: 700; color: rgba(255, 255, 255, 0.7);
+    }
+    
+    /* Top 3 Watermarks Only */
+    .wm-tl { top: 20px; left: 20px; }
+    .wm-tc { top: 20px; left: 50%; transform: translateX(-50%); }
+    .wm-tr { top: 20px; right: 20px; }
+
+    #debug-status {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      z-index: 50; color: #fff; background: rgba(20, 20, 20, 0.95);
+      padding: 15px 25px; font-size: 14px; font-weight: 500; border-radius: 8px;
+      opacity: 0; visibility: hidden; text-align: center; transition: opacity 0.3s ease;
+    }
+    
+    #debug-status.show { opacity: 1; visibility: visible; }
+    #debug-status.error { border-bottom: 3px solid #ff4444; }
+    #debug-status.success { border-bottom: 3px solid #00C851; }
+    #debug-status.info { border-bottom: 3px solid #33b5e5; }
+    #debug-status.loading { border-bottom: 3px solid var(--theme-color); }
+
+    @media(max-width:700px){ .wm { font-size: 9px; padding: 3px 8px; } }
+  </style>
+</head>
+<body>
+  <div class="shaka-video-container" id="player-container">
+    <div id="debug-status" class="loading">Initializing...</div>
+    <video id="video" autoplay playsinline preload="metadata"></video>
+
+  </div>
+  
+  <script>
+
+
+    // --- CONFIGURATION ---
+    const CHANNELS_JSON_URL = "https://binge-jiotv.pages.dev/data/id.json";
+
+    const statusEl = document.getElementById('debug-status');
+    function updateStatus(msg, type = 'info') {
+        statusEl.innerText = msg; statusEl.className = `show ${type}`; console.log(`[${type.toUpperCase()}] ${msg}`);
+    }
+
+    async function fetchConfig() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let streamUrls = [];
+      let keyId = "";
+      let key = "";
+      
+      const targetId = urlParams.get('id') || 'ss1h'; // Default to ss1h
+
+      updateStatus("Fetching Channel Data...", "loading");
+      try {
+        const channelRes = await fetch(CHANNELS_JSON_URL);
+        const data = await channelRes.json();
+        const channelList = data.channels;
+        let channelData = channelList.find(c => String(c.id) === String(targetId));
+        
+        if (channelData) {
+            streamUrls = [channelData.url].filter(Boolean);
+            keyId = channelData.keyId || "";
+            key = channelData.key || "";
+            
+            // Push the unique cookie (if provided) into our list to be tested
+            let cookiesList = channelData.cookie ? [channelData.cookie] : [""];
+            
+            return { streamUrls, keyId, key, cookiesList, activeCookie: "" };
+        }
+      } catch(e) {
+          console.error("Error fetching or parsing channel JSON", e);
+      }
+
+      updateStatus("Error: Channel ID not found!", "error");
+      return false;
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const STREAM_CONFIG = await fetchConfig();
+      if (!STREAM_CONFIG) return;
+
+      shaka.polyfill.installAll();
+      const videoEl = document.getElementById('video');
+      const container = document.getElementById('player-container');
+      
+      window.player = new shaka.Player(videoEl);
+      const ui = new shaka.ui.Overlay(window.player, container, videoEl);
+
+      ui.configure({ controlPanelElements: ["mute",           // First - volume/mute button
+    "play_pause",     // Second - play/pause button  
+    "time_and_duration", // Third - timeline timings (00:00 / 00:00)
+    "spacer",
+    "quality",
+    "picture_in_picture",
+    "fullscreen"] });
+
+      const playerConfig = { streaming: { lowLatencyMode: true, bufferingGoal: 5 } };
+      if (STREAM_CONFIG.keyId && STREAM_CONFIG.key) {
+          playerConfig.drm = { clearKeys: { [STREAM_CONFIG.keyId]: STREAM_CONFIG.key } };
+      }
+      window.player.configure(playerConfig);
+
+      window.player.getNetworkingEngine().registerRequestFilter((type, request) => {
+        request.headers['Referer'] = 'https://www.jiotv.com/';
+        request.headers['User-Agent'] = 'plaYtv/7.1.5 (Linux;Android 13) ExoPlayerLib/2.11.6';
+        
+        if (STREAM_CONFIG.activeCookie && (type === shaka.net.NetworkingEngine.RequestType.MANIFEST || type === shaka.net.NetworkingEngine.RequestType.SEGMENT)) {
+          const cleanUrl = request.uris[0].split('?')[0];
+          request.uris[0] = cleanUrl + '?' + STREAM_CONFIG.activeCookie;
+        }
+      });
+
+      let streamLoaded = false;
+      let lastErrorCode = "Unknown Error";
+
+      for (let i = 0; i < STREAM_CONFIG.streamUrls.length; i++) {
+        const currentUrl = STREAM_CONFIG.streamUrls[i];
+        
+        for (let c = 0; c < STREAM_CONFIG.cookiesList.length; c++) {
+          STREAM_CONFIG.activeCookie = STREAM_CONFIG.cookiesList[c]; 
+          
+          try {
+            updateStatus(`Testing Link ${i + 1} with Token ${c + 1}...`, "loading");
+            await window.player.load(currentUrl);
+            
+            const tracks = window.player.getVariantTracks().sort((a, b) => a.bandwidth - b.bandwidth);
+            if (tracks.length > 0) {
+              window.player.selectVariantTrack(tracks[0], true);
+              window.player.configure({ abr: { enabled: true } }); 
+            }
+
+            videoEl.play();
+            streamLoaded = true;
+            updateStatus(`Live Stream Connected!`, "success");
+            setTimeout(() => { statusEl.classList.remove('show'); }, 3000);
+            break; 
+          } catch (e) {
+            lastErrorCode = e.code || "Token Expired / CORS Error";
+          }
+        }
+        if (streamLoaded) break; 
+      }
+
+      if (!streamLoaded) {
+        updateStatus(`Playback Failed. Code: ${lastErrorCode}`, "error");
+      }
+    });
+  </script>
+</body>
+</html>
+

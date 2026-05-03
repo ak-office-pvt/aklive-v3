@@ -1,0 +1,46 @@
+if(confirm("Join Our Telegram Channel @AK_LIVE_OFFICE")) { window.location.href = "https://telegram.me/AK_LIVE_OFFICE" }
+
+ jwplayer("jwplayerDiv").setup({
+
+    controls: true,
+    displaytitle: true,
+    fullscreen: "true",
+    primary: 'html5',
+    stretching: "exactfit",
+    autostart: false,
+    "logo":    {
+        "file": "/images/play-logo.png",
+        "hide": false,
+        "link": "https://aklive.bio.link",
+        "margin": "20",
+        "position": 'top-left'
+    },
+
+  "playlist": [
+      {
+        "sources": [
+          {
+
+            "type": "mpd",
+            "file": "https://bpcdn.dialog.lk/bpk-tv/Ch120/output/index.mpd",
+            "drm": {
+              "clearkey": {
+                "keyId": "a521d7d94563c18155c433f85e3c2ed3",
+                "key": "29cb9bc0170332b0ffab44bbd2d09910"
+              }
+            },
+            "label": "0"
+          }
+        ],
+        image: "/images/play-cover.jpg",
+        title: "Star Sports 1 HD",
+        description: "Join Telegram Channel @AK_LIVE_OFFICE"
+      }
+    ],
+
+    "image": "/images/play-cover.jpg"
+  }).on('ready', function () {
+    // Set poster image for video element to avoid black background for audio-only programs.
+    var video = document.getElementById(this.id).getElementsByTagName('video')[0];
+    if (video) video.setAttribute('poster', this.getConfig().image);
+  }); 

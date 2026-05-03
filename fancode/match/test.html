@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.2/shaka-player.compiled.debug.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.2/shaka-player.ui.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.2/controls.min.css">
+  <title> AK LIVE PLAYER </title>
+  <style>
+    :root { --theme-color: #e50914; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; background:#000; overflow:hidden; font-family: 'Poppins', sans-serif; }
+    .shaka-video-container { position:fixed; inset:0; background:#000; display:flex; align-items:center; justify-content:center; }
+    video { width:100%; height:100%; object-fit:contain; }
+    #debug-status {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      z-index: 50; color: #fff; background: rgba(0, 0, 0, 0.85);
+      padding: 15px 25px; font-size: 14px; border-radius: 8px;
+      opacity: 0; visibility: hidden; text-align: center;
+    }
+    #debug-status.show { opacity: 1; visibility: visible; }
+    #debug-status.error { border-bottom: 3px solid #ff4444; }
+    #debug-status.loading { border-bottom: 3px solid var(--theme-color); }
+  </style>
+</head>
+<body>
+  <div class="shaka-video-container" id="player-container">
+    <div id="debug-status">Initializing...</div>
+    <video id="video" autoplay playsinline></video>
+  </div>
+  
+<script>
+    const FANCODE_JSON_URL = "https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json";
+    const DEFAULT_M3U8 = "https://video.gumlet.io/67f4d498aac3d4fca78db822/67f6242e1f65302d5b9d2f5e/main.m3u8";
+
+    const statusEl = document.getElementById('debug-status');
+    function updateStatus(msg, type = 'info') {
+        statusEl.innerText = msg; 
+        statusEl.className = `show ${type}`; 
+        console.log(`[${type.toUpperCase()}] ${msg}`);
+    }
+
+    async function fetchConfig() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetId = urlParams.get('match_id'); 
+      updateStatus("Fetching Match Data...", "loading");
+      
+      try {
+        const response = await fetch(FANCODE_JSON_URL);
+        const data = await response.json();
+        const matchData = (data.matches || []).find(m => String(m.match_id) === String(targetId));
+        
+        if (matchData) {
+            return { streamUrl: matchData.adfree_url || matchData.dai_url };
+        }
+      } catch(e) { console.error("JSON Error"); }
+      return { streamUrl: DEFAULT_M3U8 };
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const STREAM_CONFIG = await fetchConfig();
+      shaka.polyfill.installAll();
+      const videoEl = document.getElementById('video');
+      const container = document.getElementById('player-container');
+      window.player = new shaka.Player(videoEl);
+      const ui = new shaka.ui.Overlay(window.player, container, videoEl);
+
+      // CORS Fix: Proxy ka istemal agar zaroorat ho (Optional)
+      // let finalUrl = STREAM_CONFIG.streamUrl;
+      // if (finalUrl.includes("fancode.com")) {
+      //    finalUrl = "https://corsproxy.io/?" + encodeURIComponent(finalUrl);
+      // }
+
+      window.player.getNetworkingEngine().registerRequestFilter((type, request) => {
+        if (request.uris[0].includes("fancode.com") || request.uris[0].includes("fblive")) {
+            // In headers ko hatane se kabhi kabhi CORS bypass ho jata hai
+            delete request.headers['Origin']; 
+            request.headers['Referer'] = 'https://www.fancode.com/';
+            request.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+        }
+      });
+
+      try {
+        await window.player.load(STREAM_CONFIG.streamUrl);
+        updateStatus("Playing...", "success");
+        setTimeout(() => statusEl.classList.remove('show'), 2000);
+      } catch (e) {
+        if (STREAM_CONFIG.streamUrl !== DEFAULT_M3U8) {
+          updateStatus("Fancode Blocked (CORS), Loading Fallback...", "error");
+          window.player.load(DEFAULT_M3U8);
+        }
+      }
+    });
+</script>
+</body>
+</html>

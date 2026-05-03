@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>@allinone_reborn</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      animation: fadeBody 0.7s ease-in-out;
+    }
+
+    @keyframes fadeBody {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    header {
+      padding: 25px;
+      text-align: center;
+      background: #121212;
+      font-size: 30px;
+      font-weight: bold;
+      box-shadow: 0 0 15px #000;
+      color: #00ffaa;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .section {
+      padding: 30px 20px;
+    }
+
+    .section h2 {
+      border-left: 6px solid #00ffaa;
+      padding-left: 14px;
+      font-size: 22px;
+      margin-bottom: 20px;
+      color: #00ffaa;
+    }
+
+    .grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+      transform: translateY(0);
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 10px 30px rgba(0, 255, 170, 0.2);
+    }
+
+    .card img {
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+    }
+
+    .card-content {
+      padding: 15px;
+    }
+
+    .title {
+      font-size: 17px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .tournament {
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    .live-badge {
+      display: inline-block;
+      background-color: #ff2a2a;
+      color: white;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      animation: blink 1s infinite;
+      margin-bottom: 8px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      background: #121212;
+      color: #777;
+      margin-top: 40px;
+    }
+
+    /* MODAL STYLES */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      display: none;
+    }
+
+    .modal {
+      background: #1e1e2f;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+      max-width: 340px;
+      width: 90%;
+      text-align: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .modal h3 {
+      margin-bottom: 20px;
+      font-size: 20px;
+      color: #fff;
+    }
+
+    .modal button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(to right, #00ffd5, #0077ff);
+      color: white;
+      transition: background 0.3s ease, transform 0.2s;
+    }
+
+    .modal button img {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
+
+    .modal button:hover {
+      transform: scale(1.03);
+      background: linear-gradient(to right, #00e6b8, #0055cc);
+    }
+
+    .modal .close-btn {
+      background: #444;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <header>FanCode by @AK_LIVE_OFFICE</header>
+
+  <div class="section" id="liveSection">
+    <h2>🔴 Live Matches</h2>
+    <div class="grid" id="liveMatches"></div>
+  </div>
+
+  <div class="section" id="upcomingSection">
+    <h2>📅 Upcoming Matches</h2>
+    <div class="grid" id="upcomingMatches"></div>
+  </div>
+
+  <footer>&copy; 2025 FanCode @AK_LIVE_OFFICE</footer>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="regionModal">
+    <div class="modal">
+      <h3>Select Your Region</h3>
+      <button id="btnIndia">
+        <img src="https://flagcdn.com/w40/in.png" alt="IN" />
+        Indian User
+      </button>
+      <button id="btnWorld">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/globe--v1.png" alt="World" />
+        Worldwide User
+      </button>
+      <button class="close-btn" onclick="document.getElementById('regionModal').style.display='none'">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const _0x5cc9ae=_0x3593;(function(_0x2712f5,_0x38be51){const _0x452a49=_0x3593,_0x143d0c=_0x2712f5();while(!![]){try{const _0x235d45=parseInt(_0x452a49(0x101))/(-0x3*-0x893+-0xc75*-0x2+-0x1*0x32a2)*(parseInt(_0x452a49(0x122))/(0x295+0xd09+-0xf9c))+-parseInt(_0x452a49(0xe7))/(0x8b*-0x38+0x5d*0x65+0x16*-0x49)+-parseInt(_0x452a49(0xe0))/(-0xc06+0x1444+-0xa2*0xd)+parseInt(_0x452a49(0x127))/(-0x130b*0x1+-0xf1*0x5+0x1*0x17c5)+-parseInt(_0x452a49(0x111))/(0x6*-0x52f+-0x19ce*-0x1+0x3*0x1c6)*(parseInt(_0x452a49(0xf2))/(-0x170e+0xc75*-0x2+0x2fff))+-parseInt(_0x452a49(0x116))/(-0x155c+0xf31*-0x1+0x2495)+parseInt(_0x452a49(0x117))/(-0x144a*-0x1+-0x44*0x8e+0x1177);if(_0x235d45===_0x38be51)break;else _0x143d0c['push'](_0x143d0c['shift']());}catch(_0x1b9d10){_0x143d0c['push'](_0x143d0c['shift']());}}}(_0x10c7,0x486d*-0x9+0xa7c5d+0x7*0xb4f9));const url=_0x5cc9ae(0x104)+_0x5cc9ae(0x126)+_0x5cc9ae(0xe2)+_0x5cc9ae(0x118)+_0x5cc9ae(0x12f)+_0x5cc9ae(0x10f)+_0x5cc9ae(0x139)+_0x5cc9ae(0x137)+_0x5cc9ae(0xde);function _0x10c7(){const _0x5ed28d=['hzqHt','adfree_str','div','d-content\x22','color:red;','data:','cEAVm','\x20<div\x20clas','ncode.json','AIASp','2510916oUcVky','upcomingMa','ercontent.','onclick','EANZg','none','catch','4712802eGbcDU','IVaIS','ream=','\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','eam','JdZpU','\x22>\x0a\x20\x20\x20\x20\x20\x20\x20','\x22\x20alt=\x22','status','div>','TUfaI','969157QIvqFN','le\x22>','image','vEbsJ','s=\x22tournam','<p\x20style=\x22','open','oiMxw','liveMatche','btnIndia','body','EHfEY','matches','</div>\x0a\x20\x20\x20','\x20\x20\x20\x20\x20<div\x20','163XTkNlJ','title','ge\x22>LIVE</','https://ra','ent','jIjLS','dDnAn','ing\x20match\x20','ia.html?st','<div\x20class','vHaKI','player_ind','STARTED','hes.</p>','ancode/ref','dmebw','60fBtYKI','>Failed\x20to','tournament','ById','class=\x22tit','71344icAKsp','15399423QxgjcC','com/Jitend','display','error','n:center;\x22','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20','=\x22live-bad','\x20text-alig','forEach','flex','c=\x22','18818mAKvdN','btnWorld','/div>\x0a\x20\x20\x20\x20','zFRLQ','w.githubus','5960040XqcNMW','json','\x20\x20\x20\x20\x20\x20\x20\x20\x20<','ld.html?st','Error\x20load','style','regionModa','createElem','raunatti/f','player_wor','getElement','\x20\x20\x20<img\x20sr','innerHTML','class=\x22car','sKDNx','\x20\x20\x20\x20\x20\x20','in/data/fa','className','s/heads/ma','card','ent\x22>','_blank','appendChil','then','>\x0a\x20\x20\x20\x20\x20\x20\x20\x20','Gffjl','HxoNd','\x20load\x20matc','tches'];_0x10c7=function(){return _0x5ed28d;};return _0x10c7();}let selectedStream='';function _0x3593(_0x43413e,_0x1425fd){const _0x598bd1=_0x10c7();return _0x3593=function(_0x38ec0f,_0x4d86ff){_0x38ec0f=_0x38ec0f-(0x1ce7+0x542*0x6+0x7*-0x883);let _0x5dd47c=_0x598bd1[_0x38ec0f];return _0x5dd47c;},_0x3593(_0x43413e,_0x1425fd);}fetch(url)[_0x5cc9ae(0x13e)](_0x5134e4=>_0x5134e4[_0x5cc9ae(0x128)]())[_0x5cc9ae(0x13e)](_0xf4a9ad=>{const _0x5e1b0b=_0x5cc9ae,_0x1bc437={'oiMxw':function(_0x3ebb29,_0x5105a1){return _0x3ebb29(_0x5105a1);},'dmebw':_0x5e1b0b(0x12d)+'l','sKDNx':_0x5e1b0b(0x120),'TUfaI':_0x5e1b0b(0x146),'Gffjl':_0x5e1b0b(0x13a),'vHaKI':function(_0x46c695,_0x5012ac){return _0x46c695===_0x5012ac;},'cEAVm':_0x5e1b0b(0x10d),'EHfEY':_0x5e1b0b(0x10a)+_0x5e1b0b(0x11d)+_0x5e1b0b(0x103)+_0x5e1b0b(0xf0),'AIASp':function(_0x1473b6,_0x182a7f){return _0x1473b6===_0x182a7f;},'IVaIS':_0x5e1b0b(0xfa)+'s','vEbsJ':_0x5e1b0b(0xe1)+_0x5e1b0b(0x143)},_0x418a93=document[_0x5e1b0b(0x131)+_0x5e1b0b(0x114)](_0x1bc437[_0x5e1b0b(0xe8)]),_0x33c491=document[_0x5e1b0b(0x131)+_0x5e1b0b(0x114)](_0x1bc437[_0x5e1b0b(0xf5)]);_0xf4a9ad[_0x5e1b0b(0xfe)][_0x5e1b0b(0x11f)](_0x4fcf90=>{const _0xb6b345=_0x5e1b0b,_0x6edcb3=document[_0xb6b345(0x12e)+_0xb6b345(0x105)](_0x1bc437[_0xb6b345(0xf1)]);_0x6edcb3[_0xb6b345(0x138)]=_0x1bc437[_0xb6b345(0x140)],_0x6edcb3[_0xb6b345(0x133)]=_0xb6b345(0x11c)+_0xb6b345(0x132)+_0xb6b345(0x121)+_0x4fcf90[_0xb6b345(0xf4)]+_0xb6b345(0xee)+_0x4fcf90[_0xb6b345(0x102)]+(_0xb6b345(0xed)+_0xb6b345(0x100)+_0xb6b345(0x134)+_0xb6b345(0x147)+_0xb6b345(0x13f)+_0xb6b345(0x136))+(_0x1bc437[_0xb6b345(0x10b)](_0x4fcf90[_0xb6b345(0xef)],_0x1bc437[_0xb6b345(0x14a)])?_0x1bc437[_0xb6b345(0xfd)]:'')+(_0xb6b345(0x11c)+_0xb6b345(0x100)+_0xb6b345(0x115)+_0xb6b345(0xf3))+_0x4fcf90[_0xb6b345(0x102)]+(_0xb6b345(0xff)+_0xb6b345(0xea)+_0xb6b345(0x14b)+_0xb6b345(0xf6)+_0xb6b345(0x13b))+_0x4fcf90[_0xb6b345(0x113)]+(_0xb6b345(0xff)+_0xb6b345(0x129)+_0xb6b345(0x124)+_0xb6b345(0x136)),_0x1bc437[_0xb6b345(0xdf)](_0x4fcf90[_0xb6b345(0xef)],_0x1bc437[_0xb6b345(0x14a)])?(_0x6edcb3[_0xb6b345(0xe3)]=()=>{const _0x10f183=_0xb6b345;selectedStream=_0x1bc437[_0x10f183(0xf9)](encodeURIComponent,_0x4fcf90[_0x10f183(0x145)+_0x10f183(0xeb)]),document[_0x10f183(0x131)+_0x10f183(0x114)](_0x1bc437[_0x10f183(0x110)])[_0x10f183(0x12c)][_0x10f183(0x119)]=_0x1bc437[_0x10f183(0x135)];},_0x418a93[_0xb6b345(0x13d)+'d'](_0x6edcb3)):_0x33c491[_0xb6b345(0x13d)+'d'](_0x6edcb3);});})[_0x5cc9ae(0xe6)](_0x4be549=>{const _0x1f894c=_0x5cc9ae,_0x26446c={'zFRLQ':_0x1f894c(0x12b)+_0x1f894c(0x108)+_0x1f894c(0x149)};console[_0x1f894c(0x11a)](_0x26446c[_0x1f894c(0x125)],_0x4be549),document[_0x1f894c(0xfc)][_0x1f894c(0x133)]+=_0x1f894c(0xf7)+_0x1f894c(0x148)+_0x1f894c(0x11e)+_0x1f894c(0x11b)+_0x1f894c(0x112)+_0x1f894c(0x142)+_0x1f894c(0x10e);}),document[_0x5cc9ae(0x131)+_0x5cc9ae(0x114)](_0x5cc9ae(0xfb))[_0x5cc9ae(0xe3)]=()=>{const _0x27667d=_0x5cc9ae,_0x4a8730={'hzqHt':_0x27667d(0x13c),'HxoNd':_0x27667d(0x12d)+'l','JdZpU':_0x27667d(0xe5)};window[_0x27667d(0xf8)](_0x27667d(0x10c)+_0x27667d(0x109)+_0x27667d(0xe9)+selectedStream,_0x4a8730[_0x27667d(0x144)]),document[_0x27667d(0x131)+_0x27667d(0x114)](_0x4a8730[_0x27667d(0x141)])[_0x27667d(0x12c)][_0x27667d(0x119)]=_0x4a8730[_0x27667d(0xec)];},document[_0x5cc9ae(0x131)+_0x5cc9ae(0x114)](_0x5cc9ae(0x123))[_0x5cc9ae(0xe3)]=()=>{const _0x42cd4a=_0x5cc9ae,_0x353829={'dDnAn':_0x42cd4a(0x13c),'jIjLS':_0x42cd4a(0x12d)+'l','EANZg':_0x42cd4a(0xe5)};window[_0x42cd4a(0xf8)](_0x42cd4a(0x130)+_0x42cd4a(0x12a)+_0x42cd4a(0xe9)+selectedStream,_0x353829[_0x42cd4a(0x107)]),document[_0x42cd4a(0x131)+_0x42cd4a(0x114)](_0x353829[_0x42cd4a(0x106)])[_0x42cd4a(0x12c)][_0x42cd4a(0x119)]=_0x353829[_0x42cd4a(0xe4)];};
+  </script>
+</body>
+</html>
