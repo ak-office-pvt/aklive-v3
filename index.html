@@ -72,164 +72,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script>
 
-  <style>
-    /* ========================= */
-/* POPUP */
-/* ========================= */
 
-#popup{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.85);
-
-  display:none;
-
-  justify-content:center;
-  align-items:center;
-
-  z-index:99999;
-}
-
-.popup-content{
-
-  width:320px;
-
-  background:#1f1f1f;
-
-  border-radius:20px;
-
-  padding:25px;
-
-  text-align:center;
-
-  border:1px solid rgba(255,255,255,0.08);
-
-  animation:popupAnim 0.35s ease;
-}
-
-@keyframes popupAnim{
-
-  from{
-    transform:scale(0.7);
-    opacity:0;
-  }
-
-  to{
-    transform:scale(1);
-    opacity:1;
-  }
-
-}
-
-.popup-content h2{
-  color:#efff45;
-  margin-bottom:15px;
-  font-weight:800;
-}
-
-.popup-content p{
-  color:#ddd;
-  margin-bottom:20px;
-  line-height:1.5;
-}
-
-.popup-content button{
-
-  width:100%;
-
-  border:none;
-
-  padding:13px;
-
-  border-radius:12px;
-
-  margin-top:10px;
-
-  font-size:15px;
-
-  font-weight:700;
-
-  cursor:pointer;
-
-  transition:0.3s;
-}
-
-.join-btn{
-  background:#0088cc;
-  color:white;
-}
-
-.join-btn:hover{
-  opacity:0.9;
-}
-
-.close-btn{
-  background:#333;
-  color:white;
-}
-
-.close-btn:hover{
-  background:#444;
-}
-
-    @media(max-width:600px){
-
-  .sx-app{
-    padding:18px;
-  }
-
-  .sx-grid{
-    grid-template-columns:repeat(2,1fr);
-    gap:16px;
-  }
-
-  .sx-thumb{
-    height:120px;
-  }
-
-  .sx-heading{
-    font-size:26px;
-  }
-
-    }
-</style>
-
-  <script>
-/* ========================= */
-/* POPUP FUNCTIONS */
-/* ========================= */
-
-function showPopup(){
-
-  document.getElementById("popup")
-  .style.display = "flex";
-
-}
-
-function closePopup(){
-
-  document.getElementById("popup")
-  .style.display = "none";
-
-}
-
-function joinTelegram(){
-
-  window.open(
-    "https://telegram.me/AK_LIVE_OFFICE",
-    "_blank"
-  );
-
-  closePopup();
-
-}
-
-</script>
-  
-  
   <center>
 
 
@@ -277,42 +120,251 @@ function joinTelegram(){
 
     
     </div>
+
 <!-- ========================= -->
-<!-- POPUP -->
+<!-- POPUP HTML -->
 <!-- ========================= -->
 
-<div id="popup">
+<div id="ak-popup">
 
-<div class="popup-content">
+  <div class="ak-popup-box">
 
-<h2>Support Us!</h2>
+    <h2>Support Us!</h2>
 
-<p>
-Join our Telegram Channel
-for latest updates &
-working streams.
-</p>
+    <p>
+      Join our Telegram Channel for latest
+      updates & working streams.
+    </p>
 
-<button
-class="join-btn"
-onclick="joinTelegram()">
+    <button
+      class="ak-join-btn"
+      onclick="joinTelegram()">
 
-Join Now
+      Join Now
 
-</button>
+    </button>
 
-<button
-class="close-btn"
-onclick="closePopup()">
+    <button
+      class="ak-close-btn"
+      onclick="closePopup()">
 
-Already Joined
+      Already Joined
 
-</button>
+    </button>
+
+  </div>
 
 </div>
 
-</div>
+<!-- ========================= -->
+<!-- POPUP CSS -->
+<!-- ========================= -->
 
+<style>
+
+#ak-popup{
+
+  position:fixed;
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  background:
+  rgba(0,0,0,0.82);
+
+  backdrop-filter:blur(3px);
+
+  display:none;
+
+  justify-content:center;
+  align-items:center;
+
+  z-index:999999;
+
+  animation:fadeIn 0.3s ease;
+
+}
+
+.ak-popup-box{
+
+  width:340px;
+
+  max-width:90%;
+
+  background:
+  linear-gradient(
+    145deg,
+    #242424,
+    #1a1a1a
+  );
+
+  border-radius:28px;
+
+  padding:30px;
+
+  text-align:center;
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+  0 15px 50px rgba(0,0,0,0.5);
+
+  animation:popupZoom 0.35s ease;
+}
+
+.ak-popup-box h2{
+
+  color:#f1ff45;
+
+  font-size:24px;
+
+  margin-bottom:18px;
+
+  font-weight:800;
+}
+
+.ak-popup-box p{
+
+  color:#e0e0e0;
+
+  font-size:16px;
+
+  line-height:1.7;
+
+  margin-bottom:28px;
+}
+
+.ak-popup-box button{
+
+  width:100%;
+
+  height:58px;
+
+  border:none;
+
+  border-radius:18px;
+
+  font-size:17px;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:0.3s;
+
+  margin-top:14px;
+}
+
+.ak-join-btn{
+
+  background:#1096db;
+
+  color:white;
+}
+
+.ak-join-btn:hover{
+
+  transform:translateY(-2px);
+
+  background:#0b84c5;
+}
+
+.ak-close-btn{
+
+  background:#353535;
+
+  color:white;
+}
+
+.ak-close-btn:hover{
+
+  background:#454545;
+}
+
+@keyframes popupZoom{
+
+  from{
+    transform:scale(0.7);
+    opacity:0;
+  }
+
+  to{
+    transform:scale(1);
+    opacity:1;
+  }
+
+}
+
+@keyframes fadeIn{
+
+  from{
+    opacity:0;
+  }
+
+  to{
+    opacity:1;
+  }
+
+}
+
+</style>
+
+<!-- ========================= -->
+<!-- POPUP SCRIPT -->
+<!-- ========================= -->
+
+<script>
+
+/* SHOW POPUP */
+
+function showPopup(){
+
+  document.getElementById("ak-popup")
+  .style.display = "flex";
+
+}
+
+/* CLOSE POPUP */
+
+function closePopup(){
+
+  document.getElementById("ak-popup")
+  .style.display = "none";
+
+}
+
+/* TELEGRAM BUTTON */
+
+function joinTelegram(){
+
+  window.open(
+    "https://t.me/AK_LIVE_OFFICE",
+    "_blank"
+  );
+
+  closePopup();
+
+}
+
+/* AUTO SHOW EVERY VISIT */
+
+window.addEventListener(
+  "load",
+  () => {
+
+    setTimeout(() => {
+
+      showPopup();
+
+    }, 1200);
+
+  }
+);
+
+</script>
+    
+    
     <div class="footer">
       <div style="display:inline-block">
         <b><a href="/link/telegram.html"><button class="btn-11 custom-btn"
@@ -322,58 +374,6 @@ Already Joined
         <div class="stwBlurRainbow"></div> <br>
 
 
-        <script>
-          $(document).ready(function () {
-            var dftr = $('select.dftr'),
-              headerCount = $('#headerCount');
-            headerCount.html('select a filter or use search');
-            dftr.on('change', function () {
-              dftr.attr('disabled', 'disabled');
-              var records = $('#tvvTable').find('.tvv-item');
-              records.hide();
-              var critriaAttributes = [];
-              dftr.each(function () {
-                var $this = $(this),
-                  $selectedLength = $this.find(':selected').length,
-                  $critriaAttribute = '';
-                if ($selectedLength > 0 && $this.val() != '0') {
-                  if ($selectedLength == 1) {
-                    $critriaAttribute += '[data-' + $this.data('attribute') + '*="' + $this.val() + '"]';
-                  } else {
-                    var $startDataAttribute = '[data-' + $this.data('attribute') + '*="',
-                      $endDataAttribute = '"]',
-                      $selectedValues = $this.val().toString();
-                    $critriaAttribute += $startDataAttribute + $selectedValues.replaceAll(',', ($endDataAttribute + ',' + $startDataAttribute)) + $endDataAttribute;
-                  }
-                  critriaAttributes.push($critriaAttribute);
-                }
-              });
-              var $showRecords = records;
-              if (critriaAttributes.length > 0) {
-                $.each(critriaAttributes, function (i, filterValue) {
-                  $showRecords = $showRecords.filter(filterValue);
-                });
-              }
-              $showRecords.show();
-              headerCount.html($showRecords.length + ' channels filtered');
-              dftr.removeAttr('disabled');
-              $(".fin").val('');
-            });
-            $(".fin").keyup(function () {
-              var filter = $(this).val(),
-                count = 0;
-              $('select.dftr').prop('selectedIndex', 0);
-              $(".tvv-item").each(function () {
-                if ($(this).text().search(new RegExp(filter, "i")) < 0) {
-                  $(this).fadeOut();
-                } else {
-                  $(this).show();
-                  count++;
-                }
-              });
-            });
-          });
-        </script>
 
         <script src="https://code.jquery.com/jquery-3.6.1.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
