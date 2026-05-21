@@ -1,33 +1,44 @@
 <!doctype html>
 <html lang="en">
 <head>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <link rel="shortcut icon" href="/favicon.ico" />
-  <meta name="theme-color" content="#161616">  
-  
+
+  <link rel="shortcut icon" href="/favicon.ico"/>
+  <meta name="theme-color" content="#161616">
+
+  <!-- DYNAMIC TITLE -->
+  <title>Loading Channel...</title>
+
+  <!-- FONT -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.2/controls.min.css">
+
+  <!-- SHAKA PLAYER -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.2/controls.min.css">
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.16.2/shaka-player.ui.min.js"></script>
+
+  <!-- EXTRA -->
   <script src="/js/click-heart.js"></script>
-  <script disable-devtool-auto='true' src='https://cdn.jsdelivr.net/npm/disable-devtool' clear-log='true'
-    disable-select='true' disable-copy='true' disable-cut='true' disable-paste='true'></script>
-  
-  <title>TG @AK_LIVE_OFFICE</title>
+
+  <!-- DISABLE DEVTOOLS -->
+  <script
+    disable-devtool-auto='true'
+    src='https://cdn.jsdelivr.net/npm/disable-devtool'
+    clear-log='true'
+    disable-select='true'
+    disable-copy='true'
+    disable-cut='true'
+    disable-paste='true'>
+  </script>
 
   <style>
-
-    /* =========================
-       THEME COLOR
-    ========================== */
 
     :root{
       --theme-color:#ffcc00;
     }
-
-    /* =========================
-       RESET
-    ========================== */
 
     *{
       margin:0;
@@ -44,13 +55,12 @@
       font-family:'Poppins',sans-serif;
     }
 
-    /* =========================
-       PLAYER CONTAINER
-    ========================== */
+    /* PLAYER */
 
     .shaka-video-container{
       position:fixed;
       inset:0;
+
       background:#000;
 
       display:flex;
@@ -64,13 +74,12 @@
       object-fit:contain;
       background:#000;
       outline:none;
+      transition:.2s ease;
     }
 
-    /* =========================
-       LOGO
-    ========================== */
+    /* CHANNEL LOGO */
 
-.channel-logo{
+    .channel-logo{
     position:absolute;
 
     top:3vw;
@@ -86,12 +95,8 @@
 
     filter: drop-shadow(0 0 6px rgba(0,0,0,1.5));
 }
- 
 
-
-    /* =========================
-       STATUS BOX
-    ========================== */
+    /* STATUS BOX */
 
     #debug-status{
 
@@ -144,14 +149,51 @@
       border-bottom:3px solid var(--theme-color);
     }
 
+    /* SVG RESIZE BUTTON */
+
+    .resize-btn{
+
+      width:34px;
+      height:34px;
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      background:none;
+      border:none;
+
+      cursor:pointer;
+
+      margin-left:8px;
+    }
+
+    .resize-btn svg{
+
+      width:22px;
+      height:22px;
+
+      fill:#fff;
+
+      opacity:.9;
+
+      transition:.2s ease;
+    }
+
+    .resize-btn:hover svg{
+
+      opacity:1;
+
+      transform:scale(1.08);
+    }
+
   </style>
+
 </head>
 
 <body>
 
-  <!-- =========================
-       PLAYER
-  ========================== -->
+  <!-- PLAYER -->
 
   <div class="shaka-video-container" id="player-container">
 
@@ -163,14 +205,17 @@
 
     <!-- VIDEO -->
 
-    <video id="video"
+    <video
+      id="video"
       autoplay
       playsinline
-      preload="metadata"></video>
+      preload="metadata">
+    </video>
 
     <!-- LOGO -->
 
-    <img src="//aklive-v3.pages.dev/images/logo.png"
+    <img
+      src="//aklive-v3.pages.dev/images/logo.png"
       class="channel-logo"
       alt="Logo">
 
@@ -198,7 +243,7 @@
     }
 
     // =========================
-    // FETCH CHANNEL CONFIG
+    // FETCH CONFIG
     // =========================
 
     async function fetchConfig(){
@@ -236,6 +281,12 @@
           );
 
         if(channelData){
+
+          /* PAGE TITLE */
+
+          document.title =
+            channelData.name +
+            " | AK LIVE";
 
           streamUrls =
             [channelData.url].filter(Boolean);
@@ -312,7 +363,7 @@
           videoEl
         );
 
-      // CONTROLS
+      // PLAYER CONTROLS
 
       ui.configure({
 
@@ -322,11 +373,135 @@
           "play_pause",
           "time_and_duration",
           "spacer",
-          "quality",
+
+          /* CUSTOM BUTTON */
+
           "picture_in_picture",
+
+          "quality",
+
           "fullscreen"
-        ]
+        ],
+
+        // SEEK BAR COLORS
+
+        seekBarColors: {
+
+          base: "rgba(255,255,255,0.25)",
+
+          buffered: "rgba(255,255,255,0.45)",
+
+          played: "#ffcc00"
+        }
       });
+
+      // =========================
+      // VIDEO RESIZE MODES
+      // =========================
+
+      const resizeModes = [
+
+        "fill",
+        "contain",
+        "cover"
+      ];
+
+      let currentResize = -1;
+
+      // CREATE BUTTON
+
+      const resizeBtn =
+        document.createElement("button");
+
+      resizeBtn.className =
+        "resize-btn";
+
+      // SVG ICONS
+
+      const resizeIcons = [
+
+        // FILL
+        `
+        <svg viewBox="0 0 24 24">
+          <path d="M3 5h18v14H3V5zm2 2v10h14V7H5z"/>
+        </svg>
+        `,
+
+        // FIT
+        `
+        <svg viewBox="0 0 24 24">
+          <path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 4v-4h2v6h-6v-2h4z"/>
+        </svg>
+        `,
+
+        // COVER
+        `
+        <svg viewBox="0 0 24 24">
+          <path d="M4 6h16v12H4z"/>
+        </svg>
+        `
+      ];
+
+      // DEFAULT ICON
+
+      resizeBtn.innerHTML =
+        resizeIcons[0];
+
+      // CLICK EVENT
+
+      resizeBtn.addEventListener(
+        "click",
+        ()=>{
+
+        currentResize++;
+
+        if(
+          currentResize >=
+          resizeModes.length
+        ){
+
+          currentResize = 0;
+        }
+
+        videoEl.style.objectFit =
+          resizeModes[currentResize];
+
+        resizeBtn.innerHTML =
+          resizeIcons[currentResize];
+      });
+
+      // ADD BUTTON BEFORE QUALITY
+
+      setTimeout(()=>{
+
+        const controls =
+          document.querySelector(
+            ".shaka-controls-button-panel"
+          );
+
+        if(controls){
+
+          const qualityBtn =
+            controls.querySelector(
+              ".shaka-resolution-button"
+            );
+
+          if(qualityBtn){
+
+            controls.insertBefore(
+              resizeBtn,
+              qualityBtn
+            );
+
+          }else{
+
+            controls.appendChild(
+              resizeBtn
+            );
+          }
+        }
+
+      },1000);
 
       // PLAYER CONFIG
 
@@ -395,9 +570,7 @@
       let lastErrorCode =
         "Unknown Error";
 
-      // =========================
       // LOAD STREAM
-      // =========================
 
       for(
         let i=0;
@@ -477,9 +650,7 @@
         if(streamLoaded) break;
       }
 
-      // =========================
       // FAILED
-      // =========================
 
       if(!streamLoaded){
 
